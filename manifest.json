@@ -1,9 +1,8 @@
 {
     "manifest_version": 3,
     "name": "WhatTheme: Shopify Theme Detector",
-    "short_name": "WhatTheme",
-    "version": "0.1.0",
-    "description": "The fastest way to detect a Shopify store's theme. Simple, private, and fast.",
+    "version": "1.1",
+    "description": "One-click detection of a Shopify store's theme.",
     "permissions": [
     "activeTab",
     "scripting"

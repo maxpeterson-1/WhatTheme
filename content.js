@@ -2,26 +2,38 @@
 // It has access to the page's DOM.
 
 (function() {
-    try {
-        const scripts = document.getElementsByTagName('script');
-        let themeName = null;
-
-        for (let script of scripts) {
-            if (script.innerText.includes('Shopify.theme')) {
-                const match = script.innerText.match(/Shopify\.theme\s*=\s*\{[^}]*"name"\s*:\s*"(.*?)"/);
-                if (match && match[1]) {
-                    themeName = match[1];
-                    break;
-                }
+    function findTheme() {
+        // Method 1: Object Inspection
+        try {
+            if (window.Shopify && window.Shopify.theme && window.Shopify.theme.name) {
+                return window.Shopify.theme.name;
             }
+        } catch (e) {
+            // Continue to Method 2 if Method 1 fails
         }
 
-        if (themeName) {
-            chrome.runtime.sendMessage({ themeName });
-        } else {
-            chrome.runtime.sendMessage({ themeName: 'Not a Shopify Store' });
+        // Method 2: Regex Parsing
+        try {
+            const htmlContent = document.documentElement.innerHTML;
+            const regex = /"name":\s*"([^"]+)"/;
+            const match = htmlContent.match(regex);
+            if (match && match[1]) {
+                return match[1];
+            }
+        } catch (e) {
+            // Continue to failure case if Method 2 fails
         }
-    } catch (e) {
-        chrome.runtime.sendMessage({ themeName: 'Detection Error' });
+
+        // Failure: If both methods fail, return null
+        return null;
+    }
+
+    // Execute the detection
+    const themeName = findTheme();
+    
+    if (themeName !== null) {
+        chrome.runtime.sendMessage({ themeName: themeName });
+    } else {
+        chrome.runtime.sendMessage({ error: "Not a Shopify store or theme is hidden." });
     }
 })();
